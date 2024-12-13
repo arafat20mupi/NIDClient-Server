@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const connectDB = require("./Config/dbConfig");
 
+const priceRoutes = require("./models/Price/priceRoutes");
+const rechargeRoutes = require("./models/Reacharge/rechargeRoutes");
+
 require("dotenv").config();
 
 // Body parser middleware to parse JSON request bodies
@@ -24,6 +27,13 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("hello Developer");
 });
+
+//Price Routes
+app.use("/api", priceRoutes);
+
+// Recharge routes
+app.use("/api", rechargeRoutes);
+
 
 
 // Server listening
