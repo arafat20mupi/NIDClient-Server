@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const connectDB = require("./Config/dbConfig");
 
+const priceRoutes = require("./Price/priceRoutes");
+const rechargeRoutes = require("./Reacharge/rechargeRoutes");
 
 require("dotenv").config();
 
@@ -25,6 +27,13 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("hello Developer");
 });
+
+//Price Routes
+app.use("/api", priceRoutes);
+
+// Recharge routes
+app.use("/api", rechargeRoutes);
+
 
 
 // Server listening
