@@ -1,165 +1,121 @@
-const admin = require("firebase-admin");
-const User = require("./UserSchema");
-
+const bcrypt = require("bcryptjs");
+const User = require("./UserSchema"); // Import the User model
+const jwt = require("jsonwebtoken"); // Import JWT for authentication
 
 // Register User
 exports.register = async (req, res) => {
   const { name, phone, password } = req.body;
-  try {
-    const firebaseUser = await admin.auth().createUser({
-      phone: phone,
-      password: password,
-    });
 
-    const user = new User({
+  try {
+    // Check if the phone number already exists
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "Phone number already in use" });
+    }
+
+    // Create a new user
+    const newUser = new User({
       name,
       phone,
       password,
-      firebaseUid: firebaseUser.uid,
     });
-    await user.save();
-    console.log(phone,name);
-    res.status(200).send("User is registered");
+
+    // Save the user to the database
+    await newUser.save();
+
+    res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Registration error:", error);
+    res.status(500).json({ success: false, message: "Server error. Please try again later." });
   }
 };
 
 // Login User
 exports.login = async (req, res) => {
   const { phone, password } = req.body;
+
   try {
+    if (!phone || !password) {
+      return res.status(400).json({ success: false, message: "Please provide phone and password" });
+    }
+
+    // Find user by phone number
     const user = await User.findOne({ phone });
+    if (!user) {
+      return res.status(400).json({ success: false, message: "User not found" });
+    }
 
-    if (!user) return res.status(400).send("User not found");
-
+    // Compare provided password with stored password
     const isMatch = await user.comparePassword(password);
-
-    if (!isMatch) return res.status(400).send("Invalid credentials");
-
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-// Get All Users
-exports.getAllUsers = async (req, res) => {
-  try {
-    // Firebase theke users niye asha
-    const listUsersResult = await admin.auth().listUsers();
-    const firebaseUsers = listUsersResult.users; // Firebase er users array
-
-    // MongoDB theke users niye asha
-    let dbUsers = [];
-    try {
-      dbUsers = await User.find(); // User hocche apnar MongoDB user model
-    } catch (dbError) {
-      console.error("Database error:", dbError);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
-    // Firebase ebong MongoDB users ke ek sathe response er maddhome pathano
-    res.status(200).json({ firebaseUsers, dbUsers });
-  } catch (error) {
-    console.error("Firebase user error:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Check Admin Status// Check Admin Status// Check Admin Status
-exports.checkAdmin = async (req, res) => {
-  const { uid } = req.params;
-
-  if (!uid || typeof uid !== "string" || uid.length === 0) {
-    return res.status(400).json({ error: "Invalid UID provided" });
-  }
-
-  try {
-    const userRecord = await admin.auth().getUser(uid);
-    const isAdmin =
-      userRecord.customClaims && userRecord.customClaims.role === "admin";
-
-    res.status(200).json({ isAdmin });
-  } catch (error) {
-    console.error("Error checking admin status:", error);
-
-    if (error.code === "auth/user-not-found") {
-      return res.status(404).json({ error: "User not found" });
-    }
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Delete User
-exports.deleteUser = async (req, res) => {
-  const { uid } = req.params; // Get the Firebase UID from the request parameters
-
-  try {
-    // Delete the user directly from Firebase
-    await admin.auth().deleteUser(uid);
-
-    res.status(200).send("User deleted successfully from Firebase");
-  } catch (error) {
-    console.error("Error deleting user from Firebase:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Change User Role
-exports.changeUserRole = async (req, res) => {
-  const { phone, role } = req.body;
-  try {
-    // Find Firebase user by phone
-    const userRecord = await admin.auth().getUserByphone(phone);
-    const uid = userRecord.uid;
-
-    // Set custom claims for the user
-    await admin.auth().setCustomUserClaims(uid, { role });
-
-    // Optionally, update your local DB if needed
-    await User.findOneAndUpdate({ firebaseUid: uid }, { role }, { new: true });
-
-    // Respond with JSON instead of a plain string
-    res.status(200).json({ message: `User role changed to ${role}` });
-  } catch (error) {
-    // Log the error for debugging
-    console.error("Error changing user role:", error);
-
-    // Respond with an error message in JSON format
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Update User
-exports.updateUser = async (req, res) => {
-  const { uid } = req.params; // Get the Firebase UID from the request parameters
-  const updateData = req.body; // Get the updated data from the request body
-
-  try {
-    // Prepare the data for Firebase update
-    const firebaseUpdates = {};
-
-    // Only include fields that are present in the request body
-    if (updateData.phone) firebaseUpdates.phone = updateData.phone;
-    if (updateData.displayName)
-      firebaseUpdates.displayName = updateData.displayName;
-
-    // Update user in Firebase if there are fields to update
-    const updatedUser = await admin.auth().updateUser(uid, firebaseUpdates);
-
-    // Update user in MongoDB
-    const updatedDBUser = await User.findOneAndUpdate(
-      { firebaseUid: uid },
-      { ...updateData }, // Update with all fields provided
-      { new: true }
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, phone: user.phone },
+      process.env.JWT_SECRET, // Make sure the secret is set in environment variables
+      { expiresIn: "1h" }
     );
+
+    // Send response with token and user data
     res.status(200).json({
-      message: "User updated successfully",
-      firebaseUser: updatedUser,
-      dbUser: updatedDBUser,
+      success: true,
+      message: "Login successful",
+      token,
+      user,
     });
   } catch (error) {
-    console.error("Error updating user:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Login error:", error);
+    res.status(500).json({ success: false, message: "Server error. Please try again later." });
   }
 };
+exports.loginUser = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Verify the JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // If the decoded token is null or undefined
+    if (!decoded) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    // Send response with user data
+    res.status(200).json({
+      success: true,
+      message: "User authenticated",
+      user: decoded
+    });
+  } catch (error) {
+    // Catching any errors such as invalid or expired JWT
+    res.status(500).json({
+      success: false,
+      message: "Failed to authenticate token",
+      error: error.message,
+    });
+  }
+};
+
+// Get All Users (Admin Only)
+exports.getAll = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      users,
+      total: users.length, // Return total count of users
+    });
+  } catch (error) {
+    console.error("Get all users error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
+  }
+};
+
+
+
