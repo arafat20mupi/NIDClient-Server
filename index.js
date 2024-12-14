@@ -2,11 +2,11 @@ const express = require("express");
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path');
 const connectDB = require("./Config/dbConfig");
 
 const priceRoutes = require("./Price/priceRoutes");
 const rechargeRoutes = require("./Reacharge/rechargeRoutes");
+const userRoutes = require("./User/UserRoute");
 
 require("dotenv").config();
 
@@ -34,7 +34,8 @@ app.use("/api", priceRoutes);
 // Recharge routes
 app.use("/api", rechargeRoutes);
 
-
+// User routes
+app.use("/api", userRoutes);
 
 // Server listening
 const PORT = process.env.PORT || 5000;

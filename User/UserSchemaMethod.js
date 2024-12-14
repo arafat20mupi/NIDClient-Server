@@ -1,16 +1,20 @@
-//   for making password hashing ny using bcrypt
 const bcrypt = require("bcryptjs");
+
 const UserSchemaMethod = (schema) => {
+  // Pre-save hook for password hashing
   schema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
 
+    // Hash password before saving
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password,salt);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
   });
+
   // Compare password method
   schema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
   };
 };
-module.exports =  UserSchemaMethod;
+
+module.exports = UserSchemaMethod;
