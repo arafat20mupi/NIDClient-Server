@@ -7,6 +7,11 @@ const rechargeSchema = new mongoose.Schema(
       required: true,
       enum: ["bkash", "nogod", "rocket"],
     },
+    number: {
+      type: String,
+      required: true,
+
+    },
     amount: {
       type: Number,
       required: true,

@@ -1,11 +1,10 @@
 const Recharge = require("./rechargeSchema");
 
-// Create a new recharge
-exports.createRecharge = async (req, res) => {
-  const { paymentMethod, amount, trxId, uid, name } = req.body;
 
-  // Validation
-  if (!paymentMethod || !amount || !trxId || !uid || !name) {
+exports.createRecharge = async (req, res) => {
+  const { paymentMethod, amount, trxId, uid, name, number } = req.body;
+
+  if (!paymentMethod || !amount || !trxId || !uid || !name || !number) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -14,7 +13,7 @@ exports.createRecharge = async (req, res) => {
   }
 
   try {
-    // Check if TrxId is unique
+
     const existingRecharge = await Recharge.findOne({ trxId });
     if (existingRecharge) {
       return res.status(400).json({ message: "TrxId already exists." });
@@ -27,6 +26,7 @@ exports.createRecharge = async (req, res) => {
       trxId,
       uid,
       name,
+      number,
     });
     await newRecharge.save();
 
@@ -36,7 +36,7 @@ exports.createRecharge = async (req, res) => {
   }
 };
 
-// Get all recharges
+
 exports.getAllRecharges = async (req, res) => {
   try {
     const recharges = await Recharge.find();
