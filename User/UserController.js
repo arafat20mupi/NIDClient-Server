@@ -1,6 +1,6 @@
-const bcrypt = require("bcryptjs");
-const User = require("./UserSchema"); // Import the User model
-const jwt = require("jsonwebtoken"); // Import JWT for authentication
+const bcrypt = require('bcryptjs');
+const User = require('./UserSchema'); // Import the User model
+const jwt = require('jsonwebtoken'); // Import JWT for authentication
 
 // Register User
 exports.register = async (req, res) => {
@@ -35,6 +35,7 @@ exports.login = async (req, res) => {
   const { phone, password } = req.body;
 
   try {
+    // Check if phone and password are provided
     if (!phone || !password) {
       return res.status(400).json({ success: false, message: "Please provide phone and password" });
     }
@@ -53,49 +54,62 @@ exports.login = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user._id, phone: user.phone },
-      process.env.JWT_SECRET, // Make sure the secret is set in environment variables
+      { userId: user._id, phone: user.phone, role: user.role },
+      process.env.JWT_SECRET, // Ensure this is set in your environment variables
       { expiresIn: "1h" }
     );
 
-    // Send response with token and user data
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      token,
-      user,
-    });
+    // Custom response based on the user's role
+    if (user.role === "admin") {
+      return res.status(200).json({
+        success: true,
+        message: "Admin login successful",
+        token,
+        user,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "User login successful",
+        token,
+        user,
+      });
+    }
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ success: false, message: "Server error. Please try again later." });
   }
 };
-exports.loginUser = async (req, res) => {
-  const { token } = req.body;
 
+// Authenticated User Routes (for protected routes)
+exports.getUser = async (req, res) => {
   try {
-    // Verify the JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // If the decoded token is null or undefined
-    if (!decoded) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    // Send response with user data
-    res.status(200).json({
-      success: true,
-      message: "User authenticated",
-      user: decoded
-    });
+    const user = await User.findById(req.user.userId);
+    res.status(200).json({ success: true, user });
   } catch (error) {
-    // Catching any errors such as invalid or expired JWT
-    res.status(500).json({
-      success: false,
-      message: "Failed to authenticate token",
-      error: error.message,
-    });
+    console.error("Get user error:", error);
+    res.status(500).json({ success: false, message: "Server error. Please try again later." });
   }
+};
+
+exports.updateUserProfile = async (req, res) => {
+  const { name, phone } = req.body;
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.userId,
+      { name, phone },
+      { new: true }
+    );
+    res.status(200).json({ success: true, message: "Profile updated successfully", updatedUser });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({ success: false, message: "Server error. Please try again later." });
+  }
+};
+
+// Logout User (optional, to handle token removal)
+exports.logout = (req, res) => {
+  res.status(200).json({ success: true, message: "User logged out successfully" });
 };
 
 // Get All Users (Admin Only)
@@ -116,6 +130,3 @@ exports.getAll = async (req, res) => {
     });
   }
 };
-
-
-

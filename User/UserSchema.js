@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true,
-    unique: true, // Ensure phone number is unique
+    unique: true,
   },
   password: {
     type: String,
@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["user", "admin"],
-    default: "user",
+    default: "admin",
   },
 }, {
   timestamps: true, // Add createdAt and updatedAt fields automatically

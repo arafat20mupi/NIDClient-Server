@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 app.use("/api", priceRoutes);
 
 // Recharge routes
-app.use("/api/", rechargeRoutes);
+app.use("/api", rechargeRoutes);
 
 // User routes
 app.use("/api", userRoutes);
