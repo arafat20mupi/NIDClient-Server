@@ -1,23 +1,24 @@
 // UserRoutes.js
 const express = require("express");
-const { register, login,getAll , loginUser} = require("./UserController");
-const { authMiddleware } = require("../Middleware/Middleware");
+const { register, login,getAll,getUser, logout , updateUserProfile } = require("./UserController");
+const { authMiddleware, isAdmin } = require("../Middleware/Middleware");
 
 const route = express.Router();
 
-// Register Route
-route.post("/register", register);
+// Public routes (no authentication needed)
+route.post('/register', register);  // Register a new user
+route.post('/login', login);  // Login a user
 
-//  login Route
-route.post('/login', login)
+// Protected routes (authentication required)
+route.get('/user', authMiddleware, getUser);  // Get authenticated user's info
+route.put('/user', authMiddleware, updateUserProfile);  // Update user's profile
+route.get('/logout', authMiddleware, logout);  // Logout user
 
-// Login User Route
+// Admin-only routes
+route.get('/admin/users', authMiddleware, isAdmin, getAll);  // Get all users (admin only)
 
-route.get('/loginUser', loginUser) 
 
-// Get All Users Route
 
-route.get('/users', getAll)
 
 module.exports = route;
 
