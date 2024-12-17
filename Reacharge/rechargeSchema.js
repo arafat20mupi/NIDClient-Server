@@ -10,7 +10,6 @@ const rechargeSchema = new mongoose.Schema(
     number: {
       type: String,
       required: true,
-
     },
     amount: {
       type: Number,
@@ -22,7 +21,7 @@ const rechargeSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    uid: {
+    userId: {
       type: String,
       required: true,
     },
@@ -30,7 +29,12 @@ const rechargeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-  },
+    status:{
+      type: String,
+      enum: ["pending", "success", "cencel"],
+      default: "pending"
+    }
+  }, 
   { timestamps: true }
 );
 

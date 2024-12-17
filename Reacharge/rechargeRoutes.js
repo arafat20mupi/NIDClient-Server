@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const rechargeController = require("./rechargeController");
+const {createRecharge , getAllRecharges , updateRechargeStatus} = require("./rechargeController");
 
-router.post("/recharge", rechargeController.createRecharge);
-router.get("/recharge", rechargeController.getAllRecharges);
+router.post("/recharge", createRecharge);
+router.get("/recharge", getAllRecharges);
+
+router.put("/recharge/:trxId", updateRechargeStatus);
+
 
 module.exports = router;
