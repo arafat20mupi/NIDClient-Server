@@ -8,6 +8,8 @@ const priceRoutes = require("./Price/priceRoutes");
 const rechargeRoutes = require("./Reacharge/rechargeRoutes");
 const userRoutes = require("./User/UserRoute");
 
+const serverCopyRoutes = require("./ServerCopy/ServerCopyRoute");
+
 require("dotenv").config();
 
 // Body parser middleware to parse JSON request bodies
@@ -36,6 +38,9 @@ app.use("/api", rechargeRoutes);
 
 // User routes
 app.use("/api", userRoutes);
+
+// Server copy routes
+app.use("/api", serverCopyRoutes);
 
 // Server listening
 const PORT = process.env.PORT || 5000;
