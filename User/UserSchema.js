@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
   },
   balance: {
     type: Number,
-    default: 0, 
+    default: 0,
   },
   role: {
     type: String,
@@ -26,9 +26,9 @@ const UserSchema = new mongoose.Schema({
     default: "admin",
   },
 }, {
-  timestamps: true, // Add createdAt and updatedAt fields automatically
+  timestamps: true,
 });
 
-UserSchemaMethod(UserSchema); // Add password hashing and comparison methods
+UserSchemaMethod(UserSchema);
 
-module.exports = mongoose.model("User", UserSchema); // Export the User model
+module.exports = mongoose.model("User", UserSchema); 
