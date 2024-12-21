@@ -3,14 +3,23 @@ const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require("./Config/dbConfig");
+const cloudinary = require('cloudinary').v2;
 
 const priceRoutes = require("./Price/priceRoutes");
 const rechargeRoutes = require("./Reacharge/rechargeRoutes");
 const userRoutes = require("./User/UserRoute");
 
 const serverCopyRoutes = require("./ServerCopy/ServerCopyRoute");
+const fileUploadRoutes = require("./FileUpload/FileUploadRoute");
 
 require("dotenv").config();
+
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Body parser middleware to parse JSON request bodies
 app.use(bodyParser.json());
@@ -23,7 +32,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
+app.use('/uploads', express.static('uploads'));
 
 //  Home route
 app.get("/", (req, res) => {
@@ -41,6 +50,9 @@ app.use("/api", userRoutes);
 
 // Server copy routes
 app.use("/api", serverCopyRoutes);
+
+// File upload routes
+app.use("/api", fileUploadRoutes);
 
 // Server listening
 const PORT = process.env.PORT || 5000;

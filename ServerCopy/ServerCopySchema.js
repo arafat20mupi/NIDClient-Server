@@ -14,7 +14,7 @@ const ServerCopySchema = new mongoose.Schema({
     method: {
         type: String,
         required: true,
-        enum: ['From', 'Nid', 'Voter'],
+        enum: ['Form', 'Nid', 'Voter'],
     },
     file: {
         type: String,
@@ -26,12 +26,11 @@ const ServerCopySchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['Pending', 'Approved', 'Cencel'],
+        enum: ['Pending', 'Approved', 'Cancel'],
         default: 'Pending',
     },
 }, {
     timestamps: true,
 });
 
-
-module.exports = mongoose.model("Server", ServerCopySchema); 
+module.exports = mongoose.model("Server", ServerCopySchema);
