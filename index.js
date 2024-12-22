@@ -11,7 +11,7 @@ const userRoutes = require("./User/UserRoute");
 
 const serverCopyRoutes = require("./ServerCopy/ServerCopyRoute");
 const fileUploadRoutes = require("./FileUpload/FileUploadRoute");
-
+const IdPdfRoute = require("./IdPDF/IdPDFRoute");
 require("dotenv").config();
 
 // Cloudinary configuration
@@ -53,6 +53,9 @@ app.use("/api", serverCopyRoutes);
 
 // File upload routes
 app.use("/api", fileUploadRoutes);
+
+// Id Pdf routes
+app.use("/api", IdPdfRoute);
 
 // Server listening
 const PORT = process.env.PORT || 5000;
