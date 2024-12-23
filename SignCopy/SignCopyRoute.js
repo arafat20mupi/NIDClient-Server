@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../Middleware/Multer');
+const { upload } = require('../Middleware/multer');
 const { PostSignCopy, GetAllSignCopy, GetSignCopyById, UpdateSignCopy, CancelSignCopy } = require('./SignCopyController');
 
 

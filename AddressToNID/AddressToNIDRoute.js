@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../Middleware/Multer');
+const { upload } = require('../Middleware/multer');
 const { PostAddressToNID, GetAllAddressToNID, GetAddressToNIDById, UpdateAddressToNID, CancelAddressToNID } = require('./AddressToNIDController');
 // Route to handle server posting
 router.post('/AddressToNID', PostAddressToNID);
