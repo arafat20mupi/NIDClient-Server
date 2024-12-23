@@ -12,6 +12,7 @@ const userRoutes = require("./User/UserRoute");
 const serverCopyRoutes = require("./ServerCopy/ServerCopyRoute");
 const fileUploadRoutes = require("./FileUpload/FileUploadRoute");
 const IdPdfRoute = require("./IdPDF/IdPDFRoute");
+const NidUserPassRoute = require("./NIDUserPass/NIDUserPassRoute")
 require("dotenv").config();
 
 // Cloudinary configuration
@@ -56,6 +57,9 @@ app.use("/api", fileUploadRoutes);
 
 // Id Pdf routes
 app.use("/api", IdPdfRoute);
+
+// Nid User Password Set routes
+app.use("/api", NidUserPassRoute);
 
 // Server listening
 const PORT = process.env.PORT || 5000;

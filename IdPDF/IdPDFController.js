@@ -89,11 +89,53 @@ exports.UpdateIdPdf = async (req, res) => {
     }
 };
 
+exports.CancelIdPdf = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { feedback } = req.body;
+
+        if (!feedback || typeof feedback !== 'string' || !feedback.trim()) {
+            return res.status(400).json({ error: 'Feedback is required' });
+        }
+
+        const server = await IdPDFSchema.findOne({ userId: id });
+        if (!server) {
+            return res.status(404).json({ error: 'Server not found' });
+        }
+
+        server.status = 'Cancel';
+        server.feedback = feedback.trim();
+        await server.save();
+
+        return res.json({ message: 'Server cancelled successfully', server });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Failed to cancel server', details: error.message });
+    }
+};
+
+
+
 // Get all ID PDFs
 exports.GetAllIdPdf = async (req, res) => {
     try {
         const servers = await IdPDFSchema.find({});
         return res.json({ servers });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+};
+
+// Get a single ID PDF
+exports.GetIdPdfById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const server = await IdPDFSchema.findById({userId : id});
+        if (!server) {
+            return res.status(404).json({ error: 'Server not found' });
+        }
+        return res.json({ server });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Internal server error', details: error.message });

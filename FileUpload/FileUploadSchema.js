@@ -5,12 +5,12 @@ const PdfSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    fileUrl: {
+    file: {
         type: String,
         required: true,
         unique: true,
     },
-    userID: { type: String, required: true },
+    userId: { type: String, required: true },
     serviceType: {
         type: String,
         required: true,
