@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {  PostIdPdf , GetAllIdPdf , UpdateIdPdf, CancelIdPdf,GetIdPdfById } = require('./IdPDFController');
-const { upload } = require('../Middleware/Multer');
+const { upload } = require('../Middleware/multer');
 
 
 // Route to handle server posting
