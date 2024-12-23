@@ -1,12 +1,18 @@
 const express = require('express');
-const { PostServer, GetAllServers } = require('./ServerCopyController');
 const { upload } = require('../Middleware/Multer');
-const { uploadPdf } = require('../FileUpload/FileUploadController');
+const {PostServerCopy, GetAllServerCopy, GetServerCopyById, UpdateServerCopy, CancelServerCopy} = require('./ServerCopyController');
 
-const route = express.Router();
+const router = express.Router();
 
-route.post('/serverCopy', PostServer);
-route.get('/serverCopy', GetAllServers);
-route.post('/updateFileAndStatus', upload.single('file'), uploadPdf);
+// Route to handle server posting
+router.post('/ServerCopy', PostServerCopy);
 
-module.exports = route;
+router.get('/ServerCopy', GetAllServerCopy );
+
+router.get('/ServerCopy/:id', GetServerCopyById );
+
+router.put('/ServerCopy/:id',upload.single('file'), UpdateServerCopy );
+
+router.put('/ServerCopyCancel/:id', CancelServerCopy);
+
+module.exports = router;
