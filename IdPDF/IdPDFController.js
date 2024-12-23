@@ -71,7 +71,7 @@ exports.UpdateIdPdf = async (req, res) => {
         }
 
         // Find the server entry
-        const server = await IdPDFSchema.findOne({ userId: id });
+        const server = await IdPDFSchema.findOne({ _id: id });
         if (!server) {
             return res.status(404).json({ error: 'Server not found' });
         }
@@ -98,7 +98,7 @@ exports.CancelIdPdf = async (req, res) => {
             return res.status(400).json({ error: 'Feedback is required' });
         }
 
-        const server = await IdPDFSchema.findOne({ userId: id });
+        const server = await IdPDFSchema.findOne({ _id: id });
         if (!server) {
             return res.status(404).json({ error: 'Server not found' });
         }
