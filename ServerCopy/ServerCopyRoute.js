@@ -1,5 +1,5 @@
 const express = require('express');
-const { upload } = require('../Middleware/Multer');
+const { upload } = require('../Middleware/multer');
 const {PostServerCopy, GetAllServerCopy, GetServerCopyById, UpdateServerCopy, CancelServerCopy} = require('./ServerCopyController');
 
 const router = express.Router();
