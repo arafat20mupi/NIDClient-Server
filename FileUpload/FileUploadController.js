@@ -1,6 +1,5 @@
 const Pdf = require('./FileUploadSchema');
 const multer = require('multer');
-const path = require('path');
 const cloudinary = require('cloudinary').v2;
 
 // Configure Multer for file uploads
@@ -36,7 +35,6 @@ exports.uploadPdf = async (req, res) => {
             status: req.body.status,
             serviceType: req.body.serviceType
         });
-        console.log(pdf);
         await pdf.save();
 
         res.status(200).json({ message: 'File uploaded successfully', fileUrl: result.secure_url });
@@ -47,22 +45,19 @@ exports.uploadPdf = async (req, res) => {
 };
 
 exports.getdataByUserId = async (req, res) => {
-    console.log(req.params.userId);
     try {
-        const pdf = await Pdf.find({ userID: req.params.userId });
-        console.log(pdf);
-        res.status(200).json(pdf);
+        const pdfs = await Pdf.find({ userID: req.params.userId, status: req.params.status });
+        res.status(200).json(pdfs);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
-    }
+    }  
 };
-
 
 exports.updateStatusCencel = async (req, res) => {
     try {
-        const pdf = await Pdf.findByIdAndUpdate(req.params.id, { status: 'Cancelled' }, { new: true });
-        res.status(200).json({ message: 'Status updated successfully', pdf });
+        const pdf = await Pdf.findByIdAndUpdate({userID : req.params.id}, { status: 'Cancelled' }, { new: true });
+        res.status(200).json({ message: 'Order Cencel successfully', pdf });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });

@@ -1,10 +1,20 @@
 const mongoose = require('mongoose');
 
 const PdfSchema = new mongoose.Schema({
-    fileName: String,
-    fileUrl: String,
-    userID: { type: String, required: true },
-    serviceType: String,
+    fileName: {
+        type: String,
+        required: true
+    },
+    file: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    userId: { type: String, required: true },
+    serviceType: {
+        type: String,
+        required: true,
+    },
     status: {
         type: String,
         default: 'Pending',

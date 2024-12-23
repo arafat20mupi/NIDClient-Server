@@ -1,13 +1,14 @@
 const express = require('express');
-const { uploadPdf, getdataByUserId , updateStatusCencel } = require('./FileUploadController');
+const { getdataByUserId,} = require('./FileUploadController');
 const multer = require('multer');
+const cors = require('cors');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+// Add CORS middleware
+router.use(cors({
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+}));
 
-router.put('/uploadPdf', upload.single('pdf'), uploadPdf);
-router.get('/getOrder/:userId',getdataByUserId );
-router.patch('/cancel/:id',updateStatusCencel );
+router.get('/getOrder/:userId/:status', getdataByUserId);
 
 module.exports = router;
- 
