@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 connectDB()
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174',],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://rdseba24.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],  
   credentials: true, 
 }));

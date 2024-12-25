@@ -18,9 +18,9 @@ const uploadFileToCloudinary = async (filePath, folder) => {
 // Post a new ID PDF
 exports.PostUserPassSet = async (req, res) => {
     try {
-        const { idNumber, method, userId , whatsApp } = req.body;
+        const { idNumber, method, userId, whatsApp } = req.body;
         // Validate input
-        if (!idNumber || !method || !userId , !whatsApp) {
+        if (!idNumber || !method || !userId, !whatsApp) {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
@@ -59,32 +59,27 @@ exports.PostUserPassSet = async (req, res) => {
     }
 };
 
-// Update an existing ID PDF
+// Update an existing ID PDF// Update an existing ID PDF with the uploaded file URL
 exports.UpdateUserPassSet = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Validate file
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
-        }
-
-        // Find the server entry
-        const server = await NIDUserPassSchema.findOne({ _id: id });
+        const server = await NIDUserPassSchema.findById(id);
         if (!server) {
-            return res.status(404).json({ error: 'Server not found' });
+            return res.status(404).json({ error: 'Entry not found' });
         }
 
-        // Upload new file
-        const fileUrl = await uploadFileToCloudinary(req.file.path, 'uploads');
-        server.file = fileUrl;
+        if (!req.fileUrl) {
+            return res.status(400).json({ error: 'File upload failed or missing' });
+        }
+
+        server.file = req.fileUrl;
         server.status = 'Approved';
         await server.save();
-
-        return res.json({ message: 'Server updated successfully', server });
+        res.status(200).json({ message: 'File uploaded and entry updated', server });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Failed to update server', details: error.message });
+        console.error('Error updating entry:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -130,7 +125,7 @@ exports.GetAllUserPassSet = async (req, res) => {
 exports.GetUserPassSetById = async (req, res) => {
     try {
         const { id } = req.params;
-        const server = await NIDUserPassSchema.findById({userId : id});
+        const server = await NIDUserPassSchema.findById({ userId: id });
         if (!server) {
             return res.status(404).json({ error: 'Server not found' });
         }

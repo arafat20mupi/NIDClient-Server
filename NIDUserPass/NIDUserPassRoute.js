@@ -1,18 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../Middleware/multer');
-const { PostUserPassSet, GetAllUserPassSet, GetUserPassSetById, CancelUserPassSet, UpdateUserPassSet } = require('./NIDUserPassController');
+const {
+  PostUserPassSet,
+  GetAllUserPassSet,
+  GetUserPassSetById,
+  CancelUserPassSet,
+  UpdateUserPassSet
+} = require('./NIDUserPassController');
+const cloudinaryUploadMiddleware = require('../Middleware/FileUpload');
 
-// Route to handle server posting
+// Route to create a new UserPassSet entry
 router.post('/UserPassSet', PostUserPassSet);
 
-router.get('/UserPassSet', GetAllUserPassSet );
+// Route to retrieve all UserPassSet entries
+router.get('/UserPassSet', GetAllUserPassSet);
 
-router.get('/UserPassSet/:id', GetUserPassSetById );
+// Route to retrieve a specific UserPassSet entry by ID
+router.get('/UserPassSet/:id', GetUserPassSetById);
 
-router.put('/UserPassSet/:id',upload.single('file'), UpdateUserPassSet );
+// Route to update a UserPassSet entry with file upload
+router.put('/UserPassSet/:id', cloudinaryUploadMiddleware('uploads'), UpdateUserPassSet);
 
+// Route to cancel a UserPassSet entry with feedback
 router.put('/UserPassSetCancel/:id', CancelUserPassSet);
-
 
 module.exports = router;

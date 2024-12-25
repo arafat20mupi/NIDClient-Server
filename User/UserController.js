@@ -92,6 +92,16 @@ exports.getUser = async (req, res) => {
   }
 };
 
+exports.getAllUsers = async ( req, res ) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({ success: true, users, total: users.length });
+  } catch (error) {
+    console.error("Get all users error:", error);
+    res.status(500).json({ success: false, message: "Server error. Please try again later." });
+  }
+}
+
 exports.updateUserProfile = async (req, res) => {
   const { name, phone } = req.body;
   try {
