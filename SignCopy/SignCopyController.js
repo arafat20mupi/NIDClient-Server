@@ -1,19 +1,5 @@
 const UserSchema = require('../User/UserSchema');
 const SignCopySchema = require('./SignCopySchema');
-const cloudinary = require('cloudinary').v2;
-
-// Utility function for file upload
-const uploadFileToCloudinary = async (filePath, folder) => {
-    try {
-        const result = await cloudinary.uploader.upload(filePath, {
-            resource_type: 'auto',
-            folder: folder || 'uploads',
-        });
-        return result.secure_url;
-    } catch (error) {
-        throw new Error('Failed to upload file to Cloudinary');
-    }
-};
 
 // Post a new ID PDF
 exports.PostSignCopy = async (req, res) => {
@@ -40,16 +26,9 @@ exports.PostSignCopy = async (req, res) => {
         user.balance -= 60;
         await user.save();
 
-        // Handle file upload
-        let fileUrl = null;
-        if (req.file) {
-            fileUrl = await uploadFileToCloudinary(req.file.path, 'uploads');
-        }
-
         // Save to database
         const newServer = new SignCopySchema({
             ...req.body,
-            file: fileUrl,
         });
         await newServer.save();
 
@@ -65,30 +44,25 @@ exports.UpdateSignCopy = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Validate file
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
-        }
-
-        // Find the server entry
-        const server = await SignCopySchema.findOne({ _id: id });
+        const server = await SignCopySchema.findById(id);
         if (!server) {
-            return res.status(404).json({ error: 'Server not found' });
+            return res.status(404).json({ error: 'Entry not found' });
         }
 
-        // Upload new file
-        const fileUrl = await uploadFileToCloudinary(req.file.path, 'uploads');
-        server.file = fileUrl;
+        if (!req.fileUrl) {
+            return res.status(400).json({ error: 'File upload failed or missing' });
+        }
+
+        server.file = req.fileUrl;
         server.status = 'Approved';
         await server.save();
-
-        return res.json({ message: 'Server updated successfully', server });
+        res.status(200).json({ message: 'File uploaded and entry updated', server });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Failed to update server', details: error.message });
-    }
-};
+        console.error('Error updating entry:', error);
+        res.status(500).json({ error: 'Internal server error' });
 
+    }
+}
 exports.CancelSignCopy = async (req, res) => {
     try {
         const { id } = req.params;
@@ -131,7 +105,7 @@ exports.GetAllSignCopy = async (req, res) => {
 exports.GetSignCopyById = async (req, res) => {
     try {
         const { id } = req.params;
-        const server = await SignCopySchema.find({userId : id});
+        const server = await SignCopySchema.find({ userId: id });
         if (!server) {
             return res.status(404).json({ error: 'Server not found' });
         }
